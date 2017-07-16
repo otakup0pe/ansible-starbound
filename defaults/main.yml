@@ -1,2 +1,5 @@
 starbound_users: []
 starbound_name: "How About Video Games Tho"
+starbound_backup: false
+starbound_max_team: 4
+starbound_max_players: 8

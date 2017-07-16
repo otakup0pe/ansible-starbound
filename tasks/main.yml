@@ -23,6 +23,11 @@
     owner: "{{steamcmd_user}}"
     group: "{{steamcmd_user}}"
   register: starbound_config
+- name: "force config regeneration"
+  file:
+    path: "{{starbound_dir}}/storage/starbound_server.config"
+    state: absent
+  when: starbound_config.changed
 - systemd:
     daemon_reload: true
     state: restarted

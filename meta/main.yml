@@ -3,6 +3,17 @@
 dependencies:
   - role: lutangar.steamcmd
     src: git@github.com:otakup0pe/ansible-role-steamcmd.git
+  - role: otakup0pe.dupwrap
+    dupwrap_backups:
+    - destination: ftp
+      directories:
+      - "{{starbound_dir}}/storage/universe"
+      ftp_host: "{{starbound_backup_host}}"
+      ftp_user: "{{starbound_backup_user}}"
+      ftp_password: "{{starbound_backup_password}}"
+      ftp_path: "{{starbound_backup_path|default(omit)}}"
+      name: "starbound"
+    when: starbound_backup
 galaxy_info:
   author: Jonathan Freedman
   license: MIT
