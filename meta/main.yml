@@ -1,8 +1,8 @@
 ---
-dependencies:
 # https://github.com/lutangar/ansible-role-steamcmd/pull/1
-- role: lutangar.steamcm
-  src: git@github.com:otakup0pe/ansible-role-steamcmd.git
+dependencies:
+  - role: lutangar.steamcmd
+    src: git@github.com:otakup0pe/ansible-role-steamcmd.git
 galaxy_info:
   author: Jonathan Freedman
   license: MIT
