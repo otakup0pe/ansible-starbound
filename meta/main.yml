@@ -1,0 +1,18 @@
+---
+dependencies:
+# https://github.com/lutangar/ansible-role-steamcmd/pull/1
+- role: lutangar.steamcm
+  src: git@github.com:otakup0pe/ansible-role-steamcmd.git
+galaxy_info:
+  author: Jonathan Freedman
+  license: MIT
+  galaxy_tags:
+    - starbound
+    - steam
+    - games
+  min_ansible_version: 2.0
+  description: "Run a Starbound server from your Steam account"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - all

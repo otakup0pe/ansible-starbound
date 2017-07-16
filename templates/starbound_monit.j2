@@ -1,0 +1,4 @@
+check process starbound with pidfile /var/run/starbound.pid
+  start program "service starbound start"
+  stop program "service starbound stop"
+  if totalmem > 3072 MB for 20 cycles then restart

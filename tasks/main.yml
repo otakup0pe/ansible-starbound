@@ -1,0 +1,30 @@
+- name: "actually install starbound"
+  become: true
+  become_user: "steam"
+  no_log: true
+  command: >
+    /home/{{steamcmd_user}}/cmd/steamcmd.sh
+    +login {{steamcmd_steam.username}} {{steamcmd_steam.password}}
+    +app_update 211820
+    +exit
+- name: "starbound systemd widget"
+  template:
+    src: starbound_systemd.j2
+    dest: /etc/systemd/system/starbound.service
+    mode: 0770
+    owner: root
+    group: root
+  register: starbound_init
+- name: "starbound config"
+  template:
+    src: starbound_server.json.j2
+    dest: "{{starbound_dir}}/linux/sbinit.config"
+    mode: 0660
+    owner: "{{steamcmd_user}}"
+    group: "{{steamcmd_user}}"
+  register: starbound_config
+- systemd:
+    daemon_reload: true
+    state: restarted
+    name: starbound
+  when: starbound_config.changed or starbound_init.changed

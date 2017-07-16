@@ -1,0 +1,23 @@
+{
+    "assetDirectories" : [
+        "{{starbound_dir}}/assets/",
+        "{{starbound_dir}}/mods/"
+    ],
+    "storageDirectory" : "{{starbound_dir}}/storage/",
+    "defaultConfiguration": {
+        "gameServerBind": "0.0.0.0",
+        "serverName" : "{{starbound_name}}",
+        "serverOverrideAssetsDigest" : null,
+{% if starbound_users|default([])|length > 0 -%}
+{{'        '}}"serverUsers" : {
+{% for user in starbound_users %}
+{{'            '}}"{{user.name}}": {
+{{'                '}}"password": "{{user.password}}", 
+{{'                '}}"admin": {{ user.admin|default(false)|lower }}
+{{'            '}}}{% if not loop.last %},{% endif %}
+{% endfor %}
+{{'        '}}},
+{% endif %}
+{{'        '}}"tutorialMessages" : true
+    }
+}

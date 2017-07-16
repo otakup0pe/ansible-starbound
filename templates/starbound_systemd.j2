@@ -1,0 +1,16 @@
+# Pass the systemd to the left hand side
+[Unit]
+ Description=StarboundServer
+ After=network.target
+ [Service]
+ WorkingDirectory={{starbound_dir}}/linux
+ User=steam
+ Group=steam
+ Type=simple
+ ExecStart={{starbound_dir}}/linux/starbound_server
+ RestartSec=30
+ Restart=on-failure
+ PIDFile=/var/run/starbound.pid
+ [Install]
+ WantedBy=multi-user.target
+ 
