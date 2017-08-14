@@ -7,6 +7,7 @@
     +login {{steamcmd_steam.username}} {{steamcmd_steam.password}}
     +app_update 211820
     +exit
+  register: starbound_install
 - name: "starbound systemd widget"
   template:
     src: starbound_systemd.j2
@@ -32,4 +33,4 @@
     daemon_reload: true
     state: restarted
     name: starbound
-  when: starbound_config.changed or starbound_init.changed
+  when: starbound_config.changed or starbound_init.changed or starbound_install.changed
