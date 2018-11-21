@@ -29,8 +29,15 @@
     path: "{{starbound_dir}}/storage/starbound_server.config"
     state: absent
   when: starbound_config.changed
-- systemd:
+- name: "run starbound"
+  systemd:
     daemon_reload: true
     state: restarted
     name: starbound
-  when: starbound_config.changed or starbound_init.changed or starbound_install.changed
+  when: starbound_running and starbound_config.changed or starbound_init.changed or starbound_install.changed
+- name: "do not run starbound"
+  systemd:
+    daemon_reload: true
+    state: topped
+    enabled: no
+    name: starbound
