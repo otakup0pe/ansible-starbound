@@ -1,13 +1,44 @@
+---
 - name: "actually install starbound"
   become: true
   become_user: "steam"
-  no_log: true
+  no_log: "{{not steamcmd_debug}}"
   command: >
     /home/{{steamcmd_user}}/cmd/steamcmd.sh
-    +login {{steamcmd_steam.username}} {{steamcmd_steam.password}}
+    +login {{ steamcmd_steam.username }} {{ steamcmd_steam.password }}
+    +set_steam_guard_code {{steamcmd_steam.guard}}
     +app_update 211820
     +exit
   register: starbound_install
+  failed_when: |
+    starbound_install.rc != 0
+    or starbound_install.stdout_lines is search('ERROR!')
+
+- name: "install some mods"
+  become: true
+  become_user: "steam"
+  no_log: "{{not steamcmd_debug}}"
+  command: >-
+    /home/{{steamcmd_user}}/cmd/steamcmd.sh
+    +login {{ steamcmd_steam.username }} {{ steamcmd_steam.password }}
+    +set_steam_guard_code {{steamcmd_steam.guard}}
+    +workshop_download_item 211820 {{item}}
+    +exit
+  register: starbound_workshop
+  loop: "{{starbound_workshop_mods}}"
+  failed_when: |
+    starbound_install.rc != 0
+    or starbound_install.stdout_lines is search('ERROR!')
+
+- name: "create some mod links"
+  file:
+    path: "/home/{{steamcmd_user}}/Steam/steamapps/common/Starbound/mods/{{item}}.apk"
+    src: "/home/{{steamcmd_user}}/Steam/steamapps/workshop/content/211820/{{item}}/contents.pak"
+    state: link
+    owner: "{{steamcmd_user}}"
+    group: "{{steamcmd_user}}"
+  loop: "{{starbound_workshop_mods}}"
+
 - name: "starbound systemd widget"
   template:
     src: starbound_systemd.j2
@@ -16,6 +47,7 @@
     owner: root
     group: root
   register: starbound_init
+
 - name: "starbound config"
   template:
     src: starbound_server.json.j2
@@ -24,20 +56,38 @@
     owner: "{{steamcmd_user}}"
     group: "{{steamcmd_user}}"
   register: starbound_config
+
 - name: "force config regeneration"
   file:
     path: "{{starbound_dir}}/storage/starbound_server.config"
     state: absent
   when: starbound_config.changed
-- name: "run starbound"
+
+- name: "start starbound"
+  systemd:
+    daemon_reload: true
+    state: started
+    enabled: true
+    name: starbound
+  register: starbound_started
+
+- name: "restart starbound"
   systemd:
     daemon_reload: true
     state: restarted
     name: starbound
-  when: starbound_running and starbound_config.changed or starbound_init.changed or starbound_install.changed
+  when: |
+    starbound_running
+    and not starbound_started.changed
+    and (starbound_config.changed
+      or starbound_init.changed
+      or starbound_install.changed
+      or starbound_workshop.changed)
+
 - name: "do not run starbound"
   systemd:
     daemon_reload: true
-    state: topped
-    enabled: no
+    state: stopped
+    enabled: false
     name: starbound
+  when: not starbound_running
